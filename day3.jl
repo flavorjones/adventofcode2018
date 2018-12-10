@@ -58,15 +58,21 @@ function new_fabric(size)
     Fabric(zeros(UInt16, size, size))
 end
 
-function claim_fabric(fabric, claim)
+function for_each_fabric_claim(lambda, fabric, claim)
     x_start = claim.x + 1
     x_end = x_start + claim.width - 1
     y_start = claim.y + 1
     y_end = y_start + claim.height - 1
     for y = y_start:y_end
         for x = x_start:x_end
-            fabric.squares[x, y] += 1
+            lambda(fabric, x, y)
         end
+    end
+end
+
+function claim_fabric(fabric, claim)
+    for_each_fabric_claim(fabric, claim) do fabric, x, y
+        fabric.squares[x, y] += 1
     end
 end
 
