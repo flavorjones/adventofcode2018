@@ -80,6 +80,16 @@ function count_of_overclaimed_inches(fabric)
     count(x -> x > 1, fabric.squares)
 end
 
+function is_claim_ok(fabric, claim)
+    is_ok = true
+    for_each_fabric_claim(fabric, claim) do fabric, x, y
+        if (fabric.squares[x, y] > 1)
+            is_ok = false
+        end
+    end
+    is_ok
+end
+
 @testset "Day 3" begin
     claim_dump = "#1 @ 1,3: 4x4\n#2 @ 3,1: 4x4\n#3 @ 5,5: 2x2"
 
@@ -134,11 +144,26 @@ end
         end
         @test count_of_overclaimed_inches(fabric) == 4
     end
+
+    @testset "is_claim_ok()" begin
+        fabric = new_fabric(8)
+        claims = new_claims_from_desc(claim_dump)
+        for claim in claims
+            claim_fabric(fabric, claim)
+        end
+        @test is_claim_ok(fabric, claims[1]) == false
+        @test is_claim_ok(fabric, claims[2]) == false
+        @test is_claim_ok(fabric, claims[3]) == true
+    end
 end
 
 input = read(open("day3.input"), String)
 fabric = new_fabric(1000)
-for claim in new_claims_from_desc(input)
+claims = new_claims_from_desc(input)
+for claim in claims
     claim_fabric(fabric, claim)
 end
 println("Day 3 Star 1 answer is ", count_of_overclaimed_inches(fabric))
+
+j_ok = findfirst(c -> is_claim_ok(fabric, c), claims)
+println("Day 3 Star 2 answer is #", claims[j_ok].id)
